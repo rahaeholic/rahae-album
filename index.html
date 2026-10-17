@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light">
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#f5efe6">
@@ -25,9 +25,22 @@
       --latin: Georgia, "Times New Roman", serif;
       --sans: "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "Noto Sans CJK KR", "Malgun Gothic", system-ui, -apple-system, sans-serif;
       --pad: 20px;
+      --pad-l: max(var(--pad), env(safe-area-inset-left));
+      --pad-r: max(var(--pad), env(safe-area-inset-right));
+      --dock-space: calc(64px + env(safe-area-inset-bottom));
+      --corner: 2px;
+      --fs-cap: 13px;
+      --fs-sm: 14px;
+      --fs-title-s: 18px;
+      --fs-section: 28px;
+      --tap: rgba(142, 63, 50, .10);
+      --viewer-line: rgba(245, 239, 230, .28);
     }
     *, *::before, *::after { box-sizing: border-box; }
-    html { background: var(--paper); color: var(--ink); -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    html {
+      background: var(--paper); color: var(--ink); -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+      -webkit-tap-highlight-color: var(--tap); scroll-padding-bottom: var(--dock-space);
+    }
     @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
     body {
       margin: 0; font-family: var(--sans); font-size: 16px; line-height: 1.6;
@@ -39,14 +52,14 @@
     video:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
-    .page { max-width: 1160px; margin: 0 auto; padding: 0 var(--pad) 28px; }
+    .page { max-width: 1160px; margin: 0 auto; padding: 0 var(--pad-r) calc(28px + var(--dock-space)) var(--pad-l); }
 
     /* 표지 머리 */
-    .masthead { display: flex; align-items: center; gap: 14px; padding-top: 18px; font-size: 13px; color: var(--muted); }
+    .masthead { display: flex; align-items: center; gap: 14px; padding-top: calc(18px + env(safe-area-inset-top)); font-size: 13px; color: var(--muted); }
     .masthead .roman { font-family: var(--latin); font-style: italic; font-size: 18px; color: var(--ink); letter-spacing: .02em; }
     .masthead .rule { flex: 1; height: 1px; background: var(--line-strong); }
     h1 {
-      margin: 10px 0 22px; font-family: var(--serif); font-weight: 400;
+      margin: 10px 0 16px; font-family: var(--serif); font-weight: 400;
       font-size: clamp(2.15rem, 9.4vw, 4.6rem); line-height: 1.12; letter-spacing: -.02em;
     }
     h1 .num { font-family: var(--latin); font-size: 1.08em; letter-spacing: -.01em; }
@@ -56,13 +69,14 @@
     .hero-head { grid-area: head; }
     .feature {
       grid-area: feature; margin: 0; justify-self: center; scroll-margin-top: 16px;
-      --chrome: 236px;
+      /* 머리·두 문·라벨·대지 높이 합. 본편 아래 컨트롤까지 첫 화면에 들어오게 하는 목표값 */
+      --chrome: 272px;
       --avail: calc(100vh - var(--chrome));
-      width: min(100%, max(248px, calc(var(--avail) * .5625 + 26px)));
+      width: min(100%, max(232px, calc(var(--avail) * .5625 + 26px)));
     }
     @supports (height: 100svh) { .feature { --avail: calc(100svh - var(--chrome)); } }
     .feature-label { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; }
-    .feature-label h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 19px; line-height: 1.3; }
+    .feature-label h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: var(--fs-title-s); line-height: 1.3; }
     .feature-label .rule { flex: 1; height: 1px; background: var(--line-strong); align-self: center; }
 
     /* 사진첩 대지: 영상 바깥 여백에만 모서리 장식 */
@@ -98,12 +112,27 @@
     .saves .lbl { flex: 1; font-size: 16px; }
     .saves .meta { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
     .saves svg, .save svg { flex: none; color: var(--accent); }
-    .saves a:hover { background: rgba(255, 252, 247, .7); }
-    .saves a:hover .lbl { text-decoration: underline; }
+    .saves a:active { background: var(--tap); }
+    @media (hover: hover) {
+      .saves a:hover { background: rgba(255, 252, 247, .7); }
+      .saves a:hover .lbl { text-decoration: underline; }
+    }
+    /* 폰·태블릿: 본편 아래 저장은 한 줄 두 칸 */
+    @media (max-width: 879px) {
+      .feature .saves { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; border-top: 0; }
+      .feature .saves a {
+        display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "lbl icon" "meta icon";
+        align-items: center; column-gap: 8px; min-height: 52px; padding: 6px 12px;
+        background: var(--mat); border: 1px solid var(--line); border-radius: var(--corner);
+      }
+      .feature .saves .lbl { grid-area: lbl; font-size: var(--fs-sm); line-height: 1.3; }
+      .feature .saves .meta { grid-area: meta; font-size: var(--fs-cap); line-height: 1.3; }
+      .feature .saves svg { grid-area: icon; }
+    }
 
     /* 차례 */
-    .index { grid-area: index; margin-top: 52px; }
-    .lede { margin: 0 0 32px; font-family: var(--serif); font-size: 18px; line-height: 1.75; color: var(--ink); }
+    .index { grid-area: index; margin-top: 40px; }
+    .lede { margin: 0 0 24px; font-family: var(--serif); font-size: 17px; line-height: 1.7; color: var(--ink); }
     .rule-head { display: flex; align-items: baseline; gap: 12px; padding-bottom: 8px; margin-bottom: 14px; border-bottom: 1px solid var(--line-strong); }
     .rule-head h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 19px; }
     .rule-head p { margin: 0 0 0 auto; font-size: 13px; color: var(--muted); }
@@ -112,12 +141,28 @@
     .sheet .thumb { display: block; padding: 3px; background: var(--mat); border: 1px solid var(--line); transition: border-color .2s ease, transform .2s ease; }
     .sheet img { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; object-fit: contain; background: var(--film-bg); }
     .sheet .n { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-family: var(--latin); font-style: italic; font-size: 13px; color: var(--muted); }
-    .sheet .t { display: block; font-size: 13px; line-height: 1.4; }
-    .sheet a:hover .thumb { border-color: var(--line-strong); }
-    .sheet a:hover .t { text-decoration: underline; }
+    .sheet .t { display: block; min-height: 2.8em; font-size: var(--fs-cap); line-height: 1.4; }
+    .sheet a:active .thumb { border-color: var(--line-strong); }
+    @media (hover: hover) {
+      .sheet a:hover .thumb { border-color: var(--line-strong); }
+      .sheet a:hover .t { text-decoration: underline; }
+    }
     .sheet a.is-playing .thumb { border-color: var(--accent); }
     .sheet a.is-playing .n::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
-    @media (prefers-reduced-motion: no-preference) { .sheet a:hover .thumb { transform: translateY(-2px); } }
+    @media (hover: hover) and (prefers-reduced-motion: no-preference) { .sheet a:hover .thumb { transform: translateY(-2px); } }
+    /* 폰·태블릿: 5열로 줄이지 않고 옆으로 넘기는 목록. 카드 폭은 화면 폭에 따라 이어서 변합니다(104–140px). */
+    @media (max-width: 879px) {
+      .sheet {
+        grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: clamp(104px, calc((100% - 20px) / 2.5), 140px);
+        margin: 0 calc(var(--pad-r) * -1) 0 calc(var(--pad-l) * -1); padding: 0 var(--pad-r) 6px var(--pad-l);
+        overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity;
+        scroll-padding-inline: var(--pad-l) var(--pad-r); scrollbar-width: none; -webkit-overflow-scrolling: touch;
+      }
+      .sheet::-webkit-scrollbar { display: none; }
+      .sheet li { scroll-snap-align: start; }
+      .sheet .t { min-height: 0; font-size: var(--fs-sm); }
+      .sheet a:focus-visible { outline-offset: -3px; }
+    }
 
     /* 하이라이트 */
     .highlights { margin-top: 76px; }
@@ -142,11 +187,30 @@
     .back { color: var(--muted); }
     .save { color: var(--accent-ink); }
     .save .meta { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
-    .back:hover, .save:hover .w { text-decoration: underline; }
+    @media (hover: hover) { .back:hover, .save:hover .w { text-decoration: underline; } }
+
+    /* 폰: 하이라이트 다섯 편을 2열로 모아 사진까지의 길이를 줄입니다. 320px부터 같은 규칙이라 경계에서 급히 줄지 않습니다. */
+    @media (max-width: 599px) {
+      .highlights { margin-top: 64px; }
+      .section-head { margin-bottom: 24px; }
+      .section-head h2 { font-size: var(--fs-section); }
+      .reel { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 12px; row-gap: 32px; }
+      .entry, .entry:nth-child(even) { grid-template-columns: minmax(0, 1fr); grid-template-areas: "no" "head" "mount" "foot"; margin: 0; }
+      .entry:nth-child(5) { grid-column: 1 / -1; justify-self: center; width: calc(50% - 6px); }
+      .entry .no { padding: 0 0 2px; font-size: var(--fs-cap); text-align: left; color: var(--muted); }
+      .entry .no::after { display: none; }
+      .entry-head { flex-wrap: wrap; column-gap: 8px; row-gap: 0; margin-bottom: 8px; }
+      .entry h3 { font-size: 16px; }
+      .entry .dur { font-size: var(--fs-cap); }
+      .entry .mount { --mat-pad: 5px; --tab-size: 12px; }
+      .entry-foot { margin-top: 4px; }
+      .entry-foot .back { display: none; }
+      .entry-foot .save { flex: 1; justify-content: space-between; font-size: var(--fs-sm); }
+    }
 
     /* 마무리 */
     .colophon { max-width: 520px; margin: 24px auto 0; text-align: center; }
-    .colophon .mark { margin: 0; font-family: var(--serif); font-size: 24px; line-height: 1.4; }
+    .colophon .mark { margin: 0; font-family: var(--serif); font-size: 22px; line-height: 1.4; }
     .colophon .mark .num { font-family: var(--latin); }
     .colophon .roman { display: block; margin-top: 2px; font-family: var(--latin); font-style: italic; font-size: 15px; color: var(--muted); }
     .colophon .saves { text-align: left; margin-top: 28px; }
@@ -162,11 +226,18 @@
     /* Flip 커버 화면처럼 아주 좁은 화면 */
     @media (max-width: 359px) {
       :root { --pad: 16px; }
-      .sheet { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 14px; }
-      .entry, .entry:nth-child(even) { grid-template-columns: minmax(0, 1fr); grid-template-areas: "no" "head" "mount" "foot"; }
-      .entry .no { font-size: 20px; text-align: left; padding: 0 0 4px; }
-      .entry .no::after { display: none; }
-      .entry h3 { font-size: 20px; }
+      .reel { column-gap: 10px; }
+      .entry:nth-child(5) { width: calc(50% - 5px); }
+      .entry h3 { font-size: 15px; }
+    }
+
+    @media (min-width: 600px) and (max-width: 879px) and (max-height: 500px) {
+      .hero {
+        grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: minmax(0, 1fr) auto;
+        grid-template-areas: "head feature" "index feature"; column-gap: 32px; padding-top: 16px;
+      }
+      .hero-head { align-self: end; }
+      .index { margin-top: 24px; }
     }
 
     @media (min-width: 600px) {
@@ -208,8 +279,14 @@
       .highlights { margin-top: 120px; }
       .colophon { margin-top: 56px; }
     }
+
+    /* 가로로 든 낮은 화면: 본편이 한 화면 안에 (위 폭 규칙보다 뒤에 둡니다) */
+    @media (orientation: landscape) and (max-height: 500px) {
+      .feature { --chrome: 112px; width: min(100%, max(176px, calc(var(--avail) * .5625 + 26px))); }
+      .hero { padding-top: 16px; }
+    }
   </style>
-  <link rel="stylesheet" href="album.css">
+  <link rel="stylesheet" href="album.css?v=mobile2">
 </head>
 <body>
   <main class="page">
@@ -222,7 +299,10 @@
     <div class="hero">
       <div class="hero-head">
         <h1>라해의 <span class="num">50</span>일</h1>
-        <p class="jump"><a href="#main">영상 6편</a><span class="sep" aria-hidden="true">·</span><a href="#photos">사진 268장</a></p>
+        <nav class="jump" aria-label="영상·사진 고르기">
+          <a class="door" href="#main"><span class="door-t">영상 6편</span><span class="door-m">본편과 다섯 장면</span></a>
+          <a class="door" href="#photos"><span class="door-t">사진 268장</span><span class="door-m">다섯 장면 앨범</span></a>
+        </nav>
       </div>
 
       <figure class="feature" id="main" aria-labelledby="main-title">
@@ -263,19 +343,19 @@
         </div>
         <h3 class="index-sub">하이라이트</h3>
         <ol class="sheet">
-          <li><a href="#lace"><span class="thumb"><img src="posters/lace-poster-reframe-v5.png" alt="" width="540" height="960" decoding="async"></span><span class="n">01</span><span class="t">레이스 모자</span></a></li>
-          <li><a href="#angel"><span class="thumb"><img src="posters/angel-poster-reframe-v5.png" alt="" width="540" height="960" decoding="async"></span><span class="n">02</span><span class="t">작은 천사</span></a></li>
-          <li><a href="#bonnet"><span class="thumb"><img src="posters/bonnet-poster-reframe-v5.png" alt="" width="540" height="960" decoding="async"></span><span class="n">03</span><span class="t">꽃무늬 모자</span></a></li>
-          <li><a href="#white"><span class="thumb"><img src="posters/white-poster-reframe-v5.png" alt="" width="540" height="960" decoding="async"></span><span class="n">04</span><span class="t">인형 친구들과</span></a></li>
-          <li><a href="#check"><span class="thumb"><img src="posters/check-poster-reframe-v5.png" alt="" width="540" height="960" decoding="async"></span><span class="n">05</span><span class="t">체크 리본</span></a></li>
+          <li><a href="#lace"><span class="thumb"><img src="posters/lace-poster-reframe-v5.png" alt="" width="540" height="960" loading="lazy" decoding="async"></span><span class="n">01</span><span class="t">레이스 모자</span></a></li>
+          <li><a href="#angel"><span class="thumb"><img src="posters/angel-poster-reframe-v5.png" alt="" width="540" height="960" loading="lazy" decoding="async"></span><span class="n">02</span><span class="t">작은 천사</span></a></li>
+          <li><a href="#bonnet"><span class="thumb"><img src="posters/bonnet-poster-reframe-v5.png" alt="" width="540" height="960" loading="lazy" decoding="async"></span><span class="n">03</span><span class="t">꽃무늬 모자</span></a></li>
+          <li><a href="#white"><span class="thumb"><img src="posters/white-poster-reframe-v5.png" alt="" width="540" height="960" loading="lazy" decoding="async"></span><span class="n">04</span><span class="t">인형 친구들과</span></a></li>
+          <li><a href="#check"><span class="thumb"><img src="posters/check-poster-reframe-v5.png" alt="" width="540" height="960" loading="lazy" decoding="async"></span><span class="n">05</span><span class="t">체크 리본</span></a></li>
         </ol>
         <h3 class="index-sub">사진</h3>
         <ol class="covers">
-          <li><a href="#photos-angel"><span class="thumb"><img src="photos/thumb/012.webp" alt="" width="640" height="480" decoding="async"></span><span class="t">작은 천사</span><span class="c">16장</span></a></li>
-          <li><a href="#photos-bonnet"><span class="thumb"><img src="photos/thumb/053.webp" alt="" width="640" height="480" decoding="async"></span><span class="t">꽃무늬 모자</span><span class="c">59장</span></a></li>
-          <li><a href="#photos-lace"><span class="thumb"><img src="photos/thumb/112.webp" alt="" width="480" height="640" decoding="async"></span><span class="t">레이스 모자</span><span class="c">72장</span></a></li>
-          <li><a href="#photos-white"><span class="thumb"><img src="photos/thumb/190.webp" alt="" width="640" height="480" decoding="async"></span><span class="t">인형 친구들과</span><span class="c">57장</span></a></li>
-          <li><a href="#photos-check"><span class="thumb"><img src="photos/thumb/241.webp" alt="" width="640" height="480" decoding="async"></span><span class="t">체크 리본</span><span class="c">64장</span></a></li>
+          <li><a href="#photos-angel"><span class="thumb"><img src="photos/thumb/012.webp" alt="" width="640" height="480" loading="lazy" decoding="async"></span><span class="t">작은 천사</span><span class="c">16장</span></a></li>
+          <li><a href="#photos-bonnet"><span class="thumb"><img src="photos/thumb/053.webp" alt="" width="640" height="480" loading="lazy" decoding="async"></span><span class="t">꽃무늬 모자</span><span class="c">59장</span></a></li>
+          <li><a href="#photos-lace"><span class="thumb"><img src="photos/thumb/112.webp" alt="" width="480" height="640" loading="lazy" decoding="async"></span><span class="t">레이스 모자</span><span class="c">72장</span></a></li>
+          <li><a href="#photos-white"><span class="thumb"><img src="photos/thumb/190.webp" alt="" width="640" height="480" loading="lazy" decoding="async"></span><span class="t">인형 친구들과</span><span class="c">57장</span></a></li>
+          <li><a href="#photos-check"><span class="thumb"><img src="photos/thumb/241.webp" alt="" width="640" height="480" loading="lazy" decoding="async"></span><span class="t">체크 리본</span><span class="c">64장</span></a></li>
         </ol>
       </nav>
     </div>
@@ -399,7 +479,8 @@
         <h2 id="photos-title">사진</h2>
         <p>다섯 장면 · 268장</p>
       </div>
-      <p class="photos-guide">사진을 누르면 크게 볼 수 있어요. 옆으로 넘기면 다음 사진이에요.</p>
+      <p class="photos-guide">사진을 누르면 크게 볼 수 있어요. 옆으로 넘기면 다음 사진, 아래로 쓸면 닫혀요.</p>
+      <p class="photos-live sr-only" aria-live="polite"></p>
       <nav class="chapter-bar" aria-label="사진 장면">
         <ul>
           <li><a href="#photos-angel">작은 천사 <span class="c">16</span></a></li>
@@ -416,6 +497,7 @@
         <a class="to-film" href="#angel">영상으로 보기 <span aria-hidden="true">↑</span></a>
         <ul class="rows" id="list-angel"></ul>
         <div class="chapter-foot"></div>
+        <a class="next-chapter" href="#photos-bonnet"><span class="k">다음 장면</span><span class="t">꽃무늬 모자</span><span aria-hidden="true">→</span></a>
       </section>
 
       <section class="chapter" id="photos-bonnet" data-group="bonnet" aria-labelledby="photos-bonnet-title">
@@ -424,6 +506,7 @@
         <a class="to-film" href="#bonnet">영상으로 보기 <span aria-hidden="true">↑</span></a>
         <ul class="rows" id="list-bonnet"></ul>
         <div class="chapter-foot"></div>
+        <a class="next-chapter" href="#photos-lace"><span class="k">다음 장면</span><span class="t">레이스 모자</span><span aria-hidden="true">→</span></a>
       </section>
 
       <section class="chapter" id="photos-lace" data-group="lace" aria-labelledby="photos-lace-title">
@@ -432,6 +515,7 @@
         <a class="to-film" href="#lace">영상으로 보기 <span aria-hidden="true">↑</span></a>
         <ul class="rows" id="list-lace"></ul>
         <div class="chapter-foot"></div>
+        <a class="next-chapter" href="#photos-white"><span class="k">다음 장면</span><span class="t">인형 친구들과</span><span aria-hidden="true">→</span></a>
       </section>
 
       <section class="chapter" id="photos-white" data-group="white" aria-labelledby="photos-white-title">
@@ -440,6 +524,7 @@
         <a class="to-film" href="#white">영상으로 보기 <span aria-hidden="true">↑</span></a>
         <ul class="rows" id="list-white"></ul>
         <div class="chapter-foot"></div>
+        <a class="next-chapter" href="#photos-check"><span class="k">다음 장면</span><span class="t">체크 리본</span><span aria-hidden="true">→</span></a>
       </section>
 
       <section class="chapter" id="photos-check" data-group="check" aria-labelledby="photos-check-title">
@@ -509,11 +594,26 @@
     </footer>
   </main>
 
+  <nav class="dock" aria-label="영상·사진 이동">
+    <a href="#main" data-dock="video"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="2" y="2.5" width="12" height="11" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 5.5v5l4-2.5z" fill="currentColor"/></svg>영상</a>
+    <a href="#photos" data-dock="photos"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="2" y="2.5" width="12" height="11" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 12l3.5-4 2.5 3 1.5-1.5L13 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>사진</a>
+  </nav>
+
   <dialog class="viewer" id="viewer" aria-label="사진 크게 보기">
     <div class="viewer-top">
-      <p class="viewer-title"></p>
+      <label class="viewer-jump">
+        <span class="sr-only">장면 바로 가기</span>
+        <select class="viewer-chapter">
+          <option value="angel">작은 천사</option>
+          <option value="bonnet">꽃무늬 모자</option>
+          <option value="lace">레이스 모자</option>
+          <option value="white">인형 친구들과</option>
+          <option value="check">체크 리본</option>
+        </select>
+        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M1.5 3.5 5 7l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </label>
       <p class="viewer-count"></p>
-      <button type="button" class="viewer-close" data-act="close" aria-label="닫기"><span aria-hidden="true">×</span></button>
+      <button type="button" class="viewer-close" data-act="close" aria-label="닫기"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M5 5l10 10M15 5L5 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
     </div>
     <div class="viewer-stage">
       <img class="viewer-img" alt="" decoding="async" fetchpriority="high">
@@ -522,9 +622,10 @@
       <p class="viewer-status" hidden><span></span><button type="button" class="viewer-btn" data-act="retry" hidden>다시 시도</button></p>
     </div>
     <div class="viewer-bar">
-      <button type="button" class="viewer-btn" data-act="prev"><span aria-hidden="true">‹</span> 이전 사진</button>
-      <a class="viewer-btn viewer-save" href="#" download>사진 저장 <span aria-hidden="true">↓</span></a>
-      <button type="button" class="viewer-btn" data-act="next">다음 사진 <span aria-hidden="true">›</span></button>
+      <button type="button" class="viewer-btn viewer-back" data-act="close" aria-label="닫고 목록으로"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 2.5h4.5v4.5H2.5zM9 2.5h4.5v4.5H9zM2.5 9h4.5v4.5H2.5zM9 9h4.5v4.5H9z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg><span>목록</span></button>
+      <a class="viewer-btn viewer-save" href="#" download aria-label="사진 저장"><svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 2.5v9m0 0-3.5-3.5M9 11.5l3.5-3.5M3 15.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>저장</span></a>
+      <button type="button" class="viewer-btn" data-act="prev" aria-label="이전 사진"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>이전</span></button>
+      <button type="button" class="viewer-btn" data-act="next" aria-label="다음 사진"><span>다음</span><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </div>
     <p class="viewer-live sr-only" aria-live="polite"></p>
   </dialog>
@@ -553,6 +654,6 @@
       });
     })();
   </script>
-  <script src="album.js" defer></script>
+  <script src="album.js?v=mobile2" defer></script>
 </body>
 </html>
