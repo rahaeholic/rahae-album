@@ -336,6 +336,79 @@
 
     var cur = -1, dir = 1, token = 0, viewSlowTimer = 0;
     var pushed = false, focusAfterPop = false;
+    var displayed = -1, pendingImage = null, warmImage = null, loadToken = 0;
+    var outgoing = null, motionTimer = 0, motionFrame = 0, motionToken = 0;
+    var reducedMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+    img.hidden = true;
+    saveLink.removeAttribute('href');
+    saveLink.setAttribute('aria-disabled', 'true');
+
+    // 준비 중인 사진과 화면에 보이는 사진을 분리합니다. 실패하거나 늦어져도 현재 사진은 남습니다.
+    var discardImage = function (image) {
+      if (!image) return;
+      image.onload = image.onerror = null;
+      image.removeAttribute('src');
+      if (image.parentNode) image.parentNode.removeChild(image);
+    };
+    var stopLoad = function () {
+      loadToken++;
+      discardImage(pendingImage);
+      pendingImage = null;
+    };
+    var finishMotion = function () {
+      motionToken++;
+      clearTimeout(motionTimer);
+      if (motionFrame) window.cancelAnimationFrame(motionFrame);
+      motionFrame = 0;
+      discardImage(outgoing);
+      outgoing = null;
+      stage.classList.remove('viewer-sliding');
+      img.style.transform = '';
+    };
+    var present = function (image, p, i, direction) {
+      finishMotion();
+      var old = img, bounds = old.getBoundingClientRect(), area = stage.getBoundingClientRect();
+      var animate = displayed >= 0 && direction && !(reducedMotion && reducedMotion.matches);
+      image.className = 'viewer-img';
+      image.width = +p.width || +p.thumbWidth || 0;
+      image.height = +p.height || +p.thumbHeight || 0;
+      image.alt = p.alt || '';
+      image.hidden = false;
+      // 실제로 decode한 Image 자체를 표시하여 src 교체 사이의 빈 프레임을 피합니다.
+      old.className = 'viewer-img-outgoing';
+      old.alt = '';
+      old.setAttribute('aria-hidden', 'true');
+      old.style.left = (bounds.left - area.left) + 'px';
+      old.style.top = (bounds.top - area.top) + 'px';
+      old.style.width = bounds.width + 'px';
+      old.style.height = bounds.height + 'px';
+      stage.insertBefore(image, old);
+      img = image;
+      displayed = i;
+      saveLink.href = p.src;
+      saveLink.setAttribute('download', 'rahae-50days-' + p.id + '.webp');
+      saveLink.removeAttribute('aria-disabled');
+      if (!animate) { discardImage(old); return; }
+      outgoing = old;
+      image.style.transform = 'translate3d(' + (direction * 100) + '%, 0, 0)';
+      old.style.transform = 'translate3d(0, 0, 0)';
+      // 시작 위치를 확정한 다음 두 사진을 같은 속도로 밀어 냅니다.
+      void image.offsetWidth;
+      stage.classList.add('viewer-sliding');
+      var m = ++motionToken;
+      motionFrame = window.requestAnimationFrame(function () {
+        motionFrame = 0;
+        if (m !== motionToken || !dialog.open) return;
+        image.style.transform = 'translate3d(0, 0, 0)';
+        old.style.transform = 'translate3d(' + (-direction * 100) + '%, 0, 0)';
+        motionTimer = setTimeout(function () { if (m === motionToken) finishMotion(); }, 310);
+      });
+    };
+    var reduceChanged = function () { if (reducedMotion.matches) finishMotion(); };
+    if (reducedMotion && reducedMotion.addEventListener) reducedMotion.addEventListener('change', reduceChanged);
+    else if (reducedMotion && reducedMotion.addListener) reducedMotion.addListener(reduceChanged);
+    window.addEventListener('resize', finishMotion);
+    window.addEventListener('orientationchange', finishMotion);
 
     var open = function (i, fromHash) {
       if (!photos[i]) return;
@@ -356,21 +429,19 @@
     var show = function (i) {
       var p = photos[i];
       if (!p) return;
+      var direction = cur < 0 || i === cur ? 0 : i > cur ? 1 : -1;
+      if (direction) dir = direction;
       cur = i;
       var t = ++token;
+      stopLoad();
+      finishMotion();
       clearTimeout(viewSlowTimer);
       var g = groups[p.group];
       var pos = g ? g.items.indexOf(i) : i;
       var total = g ? g.items.length : photos.length;
 
-      img.width = +p.width || +p.thumbWidth || 0;
-      img.height = +p.height || +p.thumbHeight || 0;
-      img.alt = p.alt || '';
-      img.src = p.thumb;  // 먼저 작은 사진, 큰 사진을 받으면 바꿉니다.
       if (jump && g) jump.value = p.group;
       countEl.textContent = (pos + 1) + ' / ' + total;
-      saveLink.href = p.src;
-      saveLink.setAttribute('download', 'rahae-50days-' + p.id + '.webp');
       setDisabled(prevBtns, i === 0);
       setDisabled(nextBtns, i === photos.length - 1);
       setStatus(null);
@@ -383,31 +454,48 @@
         var other = a.getAttribute('data-act') === 'prev' ? barNext : barPrev;
         (other && !other.disabled ? other : closeBtn).focus();
       }
-      fetchView(t, p, false);
+      fetchView(t, p, false, direction);
     };
 
-    var fetchView = function (t, p, again) {
+    var fetchView = function (t, p, again, direction) {
+      stopLoad();
+      var attempt = loadToken;
       clearTimeout(viewSlowTimer);
       // 다시 시도 중에는 이미 '다시 불러오는 중' 문구와 버튼이 보이므로 덮어쓰지 않습니다.
       if (!again) viewSlowTimer = setTimeout(function () { if (t === token) setStatus('사진을 불러오는 중이에요', false); }, 350);
       var loader = new Image();
+      pendingImage = loader;
       loader.decoding = 'async';
-      loader.onload = function () {
-        if (t !== token) return;  // 이미 다른 사진으로 넘어감
+      var valid = function () { return t === token && attempt === loadToken && dialog.open; };
+      var failed = function () {
+        if (!valid()) return;
         clearTimeout(viewSlowTimer);
-        img.src = p.src;
-        setStatus(null);
-        if (again) live.textContent = '사진을 불러왔어요.';
-        var n = photos[cur + dir];
-        if (n) new Image().src = n.src;  // 넘기는 방향으로 한 장만 미리 받기
-      };
-      loader.onerror = function () {
-        if (t !== token) return;
-        clearTimeout(viewSlowTimer);
+        discardImage(loader);
+        pendingImage = null;
         var msg = again ? '다시 해 봤지만 불러오지 못했어요.' : '사진을 불러오지 못했어요.';
         setStatus(msg, true);
         live.textContent = msg + ' 다시 시도할 수 있어요.';
       };
+      loader.onload = function () {
+        if (!valid()) return;
+        var ready;
+        try { ready = typeof loader.decode === 'function' ? loader.decode() : Promise.resolve(); }
+        catch (err) { failed(); return; }
+        Promise.resolve(ready).then(function () {
+          if (!valid()) return;
+          clearTimeout(viewSlowTimer);
+          loader.onload = loader.onerror = null;
+          pendingImage = null;
+          present(loader, p, cur, again ? (displayed < cur ? 1 : displayed > cur ? -1 : 0) : direction);
+          setStatus(null);
+          if (again) live.textContent = '사진을 불러왔어요.';
+          discardImage(warmImage);
+          warmImage = null;
+          var n = photos[cur + dir];
+          if (n) { warmImage = new Image(); warmImage.src = n.src; }  // 방향으로 한 장만 예열
+        }, failed);
+      };
+      loader.onerror = failed;
       loader.src = p.src;
     };
 
@@ -467,9 +555,18 @@
     // Esc, 닫기 버튼, 목록 버튼, 아래로 쓸기, 뒤로가기 모두 여기서 정리합니다.
     dialog.addEventListener('close', function () {
       token++;
+      stopLoad();
+      finishMotion();
+      discardImage(warmImage);
+      warmImage = null;
+      displayed = -1;
       clearTimeout(viewSlowTimer);
       statusEl.hidden = true;
       img.removeAttribute('src');
+      img.hidden = true;
+      saveLink.removeAttribute('href');
+      saveLink.removeAttribute('download');
+      saveLink.setAttribute('aria-disabled', 'true');
       document.documentElement.classList.remove('viewer-open');
       var wasPushed = pushed;
       pushed = false;
@@ -517,6 +614,11 @@
 
     var lastPointer = '';
     dialog.addEventListener('click', function (e) {
+      // 첫 사진이 준비되기 전에는 비어 있는 저장 링크를 실행하지 않습니다.
+      if (saveLink.contains(e.target) && saveLink.getAttribute('aria-disabled') === 'true') {
+        e.preventDefault();
+        return;
+      }
       var b = e.target.closest ? e.target.closest('[data-act]') : null;
       if (b && dialog.contains(b)) {
         var act = b.getAttribute('data-act');
