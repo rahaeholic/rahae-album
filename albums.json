@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "title": "라해의 앨범",
+  "albums": [
+    {
+      "id": "50-days",
+      "title": "50일",
+      "path": "albums/50-days/",
+      "cover": "albums/50-days/photos/view/112.webp",
+      "width": 1536,
+      "height": 2048,
+      "alt": "레이스 모자를 쓴 라해"
+    }
+  ]
+}

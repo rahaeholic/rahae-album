@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5efe6">
+  <meta name="description" content="라해의 50일 기념 앨범">
+  <title>라해의 50일 · Rahae</title>
+  <style>
+    :root {
+      --paper: #f5efe6;
+      --mat: #fffcf7;
+      --ink: #33271f;
+      --muted: #6b5748;
+      --soft: #8a7464;
+      --line: #e4d9c9;
+      --line-strong: #cdbca6;
+      --tab: #e6dac8;
+      --accent: #8e3f32;
+      --accent-ink: #6f2f25;
+      --film-bg: #2b231e;
+      --serif: Georgia, "Noto Serif KR", "Noto Serif CJK KR", "Source Han Serif K", "AppleMyungjo", "Nanum Myeongjo", "Batang", serif;
+      --latin: Georgia, "Times New Roman", serif;
+      --sans: "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "Noto Sans CJK KR", "Malgun Gothic", system-ui, -apple-system, sans-serif;
+      --pad: 20px;
+      --pad-l: max(var(--pad), env(safe-area-inset-left));
+      --pad-r: max(var(--pad), env(safe-area-inset-right));
+      --dock-space: calc(64px + env(safe-area-inset-bottom));
+      --corner: 2px;
+      --fs-cap: 13px;
+      --fs-sm: 14px;
+      --fs-title-s: 18px;
+      --fs-section: 28px;
+      --tap: rgba(142, 63, 50, .10);
+      --viewer-line: rgba(245, 239, 230, .28);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html {
+      background: var(--paper); color: var(--ink); -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+      -webkit-tap-highlight-color: var(--tap); scroll-padding-bottom: var(--dock-space);
+    }
+    @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+    body {
+      margin: 0; font-family: var(--sans); font-size: 16px; line-height: 1.6;
+      word-break: keep-all; overflow-wrap: anywhere; overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+    a:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+    video:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+    .page { max-width: 1160px; margin: 0 auto; padding: 0 var(--pad-r) calc(28px + var(--dock-space)) var(--pad-l); }
+
+    /* 표지 머리 */
+    .masthead { display: flex; align-items: center; gap: 14px; padding-top: calc(18px + env(safe-area-inset-top)); font-size: 13px; color: var(--muted); }
+    .masthead .roman { font-family: var(--latin); font-style: italic; font-size: 18px; color: var(--ink); letter-spacing: .02em; }
+    .masthead .rule { flex: 1; height: 1px; background: var(--line-strong); }
+    .album-home { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 2px; text-decoration: none; }
+    @media (hover: hover) { .album-home:hover { color: var(--accent-ink); } }
+    h1 {
+      margin: 10px 0 16px; font-family: var(--serif); font-weight: 400;
+      font-size: clamp(2.15rem, 9.4vw, 4.6rem); line-height: 1.12; letter-spacing: -.02em;
+    }
+    h1 .num { font-family: var(--latin); font-size: 1.08em; letter-spacing: -.01em; }
+
+    /* 첫 화면: 본편 */
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "feature" "index"; }
+    .hero-head { grid-area: head; }
+    .feature {
+      grid-area: feature; margin: 0; justify-self: center; scroll-margin-top: 16px;
+      /* 머리·두 문·라벨·대지 높이 합. 본편 아래 컨트롤까지 첫 화면에 들어오게 하는 목표값 */
+      --chrome: 272px;
+      --avail: calc(100vh - var(--chrome));
+      width: min(100%, max(232px, calc(var(--avail) * .5625 + 26px)));
+    }
+    @supports (height: 100svh) { .feature { --avail: calc(100svh - var(--chrome)); } }
+    .feature-label { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+    .feature-label h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: var(--fs-title-s); line-height: 1.3; }
+    .feature-label .rule { flex: 1; height: 1px; background: var(--line-strong); align-self: center; }
+
+    /* 사진첩 대지: 영상 바깥 여백에만 모서리 장식 */
+    .mount {
+      --mat-pad: 9px; --tab-size: 16px;
+      position: relative; padding: var(--mat-pad);
+      background-color: var(--mat);
+      background-image:
+        linear-gradient(135deg, var(--tab) 50%, transparent 50%),
+        linear-gradient(225deg, var(--tab) 50%, transparent 50%),
+        linear-gradient(315deg, var(--tab) 50%, transparent 50%),
+        linear-gradient(45deg, var(--tab) 50%, transparent 50%);
+      background-size: var(--tab-size) var(--tab-size);
+      background-position: top left, top right, bottom right, bottom left;
+      background-repeat: no-repeat;
+      border: 1px solid var(--line);
+      box-shadow: 0 1px 2px rgba(51, 39, 31, .06), 0 20px 36px -26px rgba(51, 39, 31, .5);
+      transition: border-color .2s ease;
+    }
+    .feature .mount { --mat-pad: 12px; --tab-size: 20px; }
+    video { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; object-fit: contain; background: var(--film-bg); }
+    .is-playing > .mount, .is-playing .mount { border-color: var(--line-strong); }
+    :target > .mount { border-color: var(--accent); }
+
+    .dur { font-family: var(--latin); font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+    /* 저장 목록 */
+    .saves { list-style: none; margin: 16px 0 0; padding: 0; border-top: 1px solid var(--line-strong); }
+    .saves a {
+      display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 8px 2px;
+      border-bottom: 1px solid var(--line); text-decoration: none; color: var(--ink);
+    }
+    .saves .lbl { flex: 1; font-size: 16px; }
+    .saves .meta { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .saves svg, .save svg { flex: none; color: var(--accent); }
+    .saves a:active { background: var(--tap); }
+    @media (hover: hover) {
+      .saves a:hover { background: rgba(255, 252, 247, .7); }
+      .saves a:hover .lbl { text-decoration: underline; }
+    }
+    /* 폰·태블릿: 본편 아래 저장은 한 줄 두 칸 */
+    @media (max-width: 879px) {
+      .feature .saves { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; border-top: 0; }
+      .feature .saves a {
+        display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "lbl icon" "meta icon";
+        align-items: center; column-gap: 8px; min-height: 52px; padding: 6px 12px;
+        background: var(--mat); border: 1px solid var(--line); border-radius: var(--corner);
+      }
+      .feature .saves .lbl { grid-area: lbl; font-size: var(--fs-sm); line-height: 1.3; }
+      .feature .saves .meta { grid-area: meta; font-size: var(--fs-cap); line-height: 1.3; }
+      .feature .saves svg { grid-area: icon; }
+    }
+
+    /* 차례 */
+    .index { grid-area: index; margin-top: 40px; }
+    .rule-head { display: flex; align-items: baseline; gap: 12px; padding-bottom: 8px; margin-bottom: 14px; border-bottom: 1px solid var(--line-strong); }
+    .rule-head h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 19px; }
+    .sheet { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+    .sheet a { display: block; padding-bottom: 4px; text-decoration: none; color: var(--ink); }
+    .sheet .thumb { display: block; padding: 3px; background: var(--mat); border: 1px solid var(--line); transition: border-color .2s ease, transform .2s ease; }
+    .sheet img { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; object-fit: contain; background: var(--film-bg); }
+    .sheet .n { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-family: var(--latin); font-style: italic; font-size: 13px; color: var(--muted); }
+    .sheet .t { display: block; min-height: 2.8em; font-size: var(--fs-cap); line-height: 1.4; }
+    .sheet a:active .thumb { border-color: var(--line-strong); }
+    @media (hover: hover) {
+      .sheet a:hover .thumb { border-color: var(--line-strong); }
+      .sheet a:hover .t { text-decoration: underline; }
+    }
+    .sheet a.is-playing .thumb { border-color: var(--accent); }
+    .sheet a.is-playing .n::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+    @media (hover: hover) and (prefers-reduced-motion: no-preference) { .sheet a:hover .thumb { transform: translateY(-2px); } }
+    /* 폰·태블릿: 5열로 줄이지 않고 옆으로 넘기는 목록. 카드 폭은 화면 폭에 따라 이어서 변합니다(104–140px). */
+    @media (max-width: 879px) {
+      .sheet {
+        grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: clamp(104px, calc((100% - 20px) / 2.5), 140px);
+        margin: 0 calc(var(--pad-r) * -1) 0 calc(var(--pad-l) * -1); padding: 0 var(--pad-r) 6px var(--pad-l);
+        overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity;
+        scroll-padding-inline: var(--pad-l) var(--pad-r); scrollbar-width: none; -webkit-overflow-scrolling: touch;
+      }
+      .sheet::-webkit-scrollbar { display: none; }
+      .sheet li { scroll-snap-align: start; }
+      .sheet .t { min-height: 0; font-size: var(--fs-sm); }
+      .sheet a:focus-visible { outline-offset: -3px; }
+    }
+
+    /* 하이라이트 */
+    .highlights { margin-top: 76px; }
+    .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; padding-bottom: 12px; margin-bottom: 36px; border-bottom: 1px solid var(--line-strong); }
+    .section-head h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(1.8rem, 7vw, 2.6rem); line-height: 1.15; letter-spacing: -.01em; }
+    .reel { list-style: none; margin: 0; padding: 0; }
+    .entry {
+      display: grid; grid-template-columns: minmax(0, 1fr) 56px;
+      grid-template-areas: "head ." "mount no" "foot .";
+      margin-bottom: 64px; scroll-margin-top: 16px;
+    }
+    .entry:nth-child(even) { grid-template-columns: 56px minmax(0, 1fr); grid-template-areas: ". head" "no mount" ". foot"; }
+    .entry .no { grid-area: no; padding-top: 4px; font-family: var(--latin); font-style: italic; font-size: 34px; line-height: 1; color: var(--soft); text-align: center; }
+    .entry .no::after { content: ""; display: block; width: 1px; height: 72px; margin: 14px auto 0; background: var(--line-strong); }
+    .entry-head { grid-area: head; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .entry h3 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 22px; line-height: 1.3; transition: color .2s ease; }
+    .entry:target h3 { color: var(--accent-ink); }
+    .entry .mount { grid-area: mount; }
+    .entry-foot { grid-area: foot; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 6px; }
+    .back, .save { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 2px; font-size: 15px; text-decoration: none; }
+    .back { color: var(--muted); }
+    .save { color: var(--accent-ink); }
+    .save .meta { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    @media (hover: hover) { .back:hover, .save:hover .w { text-decoration: underline; } }
+
+    /* 폰: 하이라이트 다섯 편을 2열로 모아 사진까지의 길이를 줄입니다. 320px부터 같은 규칙이라 경계에서 급히 줄지 않습니다. */
+    @media (max-width: 599px) {
+      .highlights { margin-top: 64px; }
+      .section-head { margin-bottom: 24px; }
+      .section-head h2 { font-size: var(--fs-section); }
+      .reel { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 12px; row-gap: 32px; }
+      .entry, .entry:nth-child(even) { grid-template-columns: minmax(0, 1fr); grid-template-areas: "no" "head" "mount" "foot"; margin: 0; }
+      .entry:nth-child(5) { grid-column: 1 / -1; justify-self: center; width: calc(50% - 6px); }
+      .entry .no { padding: 0 0 2px; font-size: var(--fs-cap); text-align: left; color: var(--muted); }
+      .entry .no::after { display: none; }
+      .entry-head { flex-wrap: wrap; column-gap: 8px; row-gap: 0; margin-bottom: 8px; }
+      .entry h3 { font-size: 16px; }
+      .entry .dur { font-size: var(--fs-cap); }
+      .entry .mount { --mat-pad: 5px; --tab-size: 12px; }
+      .entry-foot { margin-top: 4px; }
+      .entry-foot .back { display: none; }
+      .entry-foot .save { flex: 1; justify-content: space-between; font-size: var(--fs-sm); }
+    }
+
+    /* 마무리 */
+    .colophon { max-width: 520px; margin: 24px auto 0; text-align: center; }
+    .colophon .mark { margin: 0; font-family: var(--serif); font-size: 22px; line-height: 1.4; }
+    .colophon .mark .num { font-family: var(--latin); }
+    .colophon .roman { display: block; margin-top: 2px; font-family: var(--latin); font-style: italic; font-size: 15px; color: var(--muted); }
+    .colophon .saves { text-align: left; margin-top: 28px; }
+    .colophon .back { margin-top: 12px; }
+    .ornament { display: block; width: 1px; height: 48px; margin: 0 auto 20px; background: var(--line-strong); }
+
+    footer { margin-top: 56px; padding-top: 22px; border-top: 1px solid var(--line); text-align: center; font-size: 13px; line-height: 1.8; color: var(--muted); }
+    footer p { margin: 0 0 6px; }
+    footer a { display: inline-block; padding: 4px 0; color: var(--ink); }
+    footer .credit { font-family: var(--latin); font-size: 14px; }
+    footer .credit .k { font-family: var(--sans); margin-right: 6px; color: var(--muted); }
+
+    /* Flip 커버 화면처럼 아주 좁은 화면 */
+    @media (max-width: 359px) {
+      :root { --pad: 16px; }
+      .reel { column-gap: 10px; }
+      .entry:nth-child(5) { width: calc(50% - 5px); }
+      .entry h3 { font-size: 15px; }
+    }
+
+    @media (min-width: 600px) and (max-width: 879px) and (max-height: 500px) {
+      .hero {
+        grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: minmax(0, 1fr) auto;
+        grid-template-areas: "head feature" "index feature"; column-gap: 32px; padding-top: 16px;
+      }
+      .hero-head { align-self: end; }
+      .index { margin-top: 24px; }
+    }
+
+    @media (min-width: 600px) {
+      :root { --pad: 32px; }
+      .reel { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: clamp(24px, 4vw, 48px); row-gap: 64px; }
+      .entry, .entry:nth-child(even) {
+        grid-column: span 2; grid-template-columns: auto minmax(0, 1fr);
+        grid-template-areas: "no head" "mount mount" "foot foot"; column-gap: 12px; margin: 0;
+      }
+      .entry:nth-child(even) { margin-top: 72px; }
+      .entry:nth-child(5) { grid-column: 2 / span 2; }
+      .entry .no { font-size: 24px; text-align: left; padding: 0; align-self: baseline; }
+      .entry .no::after { display: none; }
+      .highlights { margin-top: 96px; }
+      .section-head { margin-bottom: 44px; }
+    }
+
+    @media (min-width: 880px) {
+      .hero {
+        grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: minmax(0, 1fr) auto;
+        grid-template-areas: "head feature" "index feature"; column-gap: clamp(48px, 7vw, 104px); padding-top: 36px;
+      }
+      .hero-head { align-self: end; }
+      h1 { margin: 0 0 8px; }
+      .index { margin-top: 28px; }
+      .feature { --chrome: 172px; width: min(440px, max(300px, calc(var(--avail) * .5625 + 26px))); }
+      .sheet { gap: 14px; }
+      .sheet .t { font-size: 14px; }
+    }
+
+    @media (min-width: 960px) {
+      :root { --pad: 48px; }
+      .reel { grid-template-columns: repeat(6, minmax(0, 1fr)); row-gap: 80px; }
+      .entry:nth-child(even) { margin-top: 0; }
+      .entry:nth-child(2) { margin-top: 72px; }
+      .entry:nth-child(4) { grid-column: 2 / span 2; }
+      .entry:nth-child(5) { grid-column: 4 / span 2; }
+      .highlights { margin-top: 120px; }
+      .colophon { margin-top: 56px; }
+    }
+
+    /* 가로로 든 낮은 화면: 본편이 한 화면 안에 (위 폭 규칙보다 뒤에 둡니다) */
+    @media (orientation: landscape) and (max-height: 500px) {
+      .feature { --chrome: 112px; width: min(100%, max(176px, calc(var(--avail) * .5625 + 26px))); }
+      .hero { padding-top: 16px; }
+    }
+  </style>
+  <link rel="stylesheet" href="album.css?v=hub1">
+</head>
+<body>
+  <main class="page">
+    <header class="masthead" id="album-top">
+      <span class="roman" lang="en">Rahae</span>
+      <span class="rule" aria-hidden="true"></span>
+      <a class="album-home" href="../../"><span aria-hidden="true">←</span> 앨범</a>
+    </header>
+
+    <div class="hero">
+      <div class="hero-head">
+        <h1>라해의 <span class="num">50</span>일</h1>
+        <nav class="jump" aria-label="영상·사진 고르기">
+          <a class="door" href="#main"><span class="door-t">영상</span></a>
+          <a class="door" href="#photos"><span class="door-t">사진</span></a>
+        </nav>
+      </div>
+
+      <figure class="feature" id="main" aria-labelledby="main-title">
+        <div class="feature-label">
+          <h2 id="main-title">본편</h2>
+          <span class="rule" aria-hidden="true"></span>
+          <span class="dur"><span class="sr-only">길이 </span>0:54</span>
+        </div>
+        <div class="mount">
+          <video controls playsinline preload="metadata" data-film="main" aria-label="라해의 50일 본편 영상" poster="posters/main-poster-reframe-v5.png">
+            <source src="01_rahae_50days_main_v5.mp4" type="video/mp4">
+            이 브라우저에서 영상이 열리지 않으면 <a href="01_rahae_50days_main_v5.mp4" download="01_rahae_50days_main_v5.mp4">본편을 저장해 주세요</a>.
+          </video>
+        </div>
+        <ul class="saves">
+          <li>
+            <a href="01_rahae_50days_main_v5.mp4" download="01_rahae_50days_main_v5.mp4">
+              <span class="lbl">본편 저장</span>
+              <span class="meta">MP4 · 54.5MB</span>
+              <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 2.5v9m0 0-3.5-3.5M9 11.5l3.5-3.5M3 15.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="#downloads">
+              <span class="lbl">영상별 저장</span>
+              <span class="meta">MP4</span>
+              <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 2.5v9m0 0-3.5-3.5M9 11.5l3.5-3.5M3 15.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </li>
+        </ul>
+      </figure>
+
+      <nav class="index" id="index" aria-labelledby="index-title">
+        <div class="rule-head">
+          <h2 id="index-title">차례</h2>
+        </div>
+        <h3 class="index-sub">하이라이트</h3>
+        <ol class="sheet">
+          <li><a href="#lace"><span class="thumb"><img src="posters/lace-poster-reframe-v5.png" alt="" width="540" height="960" loading="lazy" decoding="async"></span><span class="n">01</span><span class="t">레이스 모자</span></a></li>
+          <li><a href="#angel"><span class="thumb"><img src="posters/angel-poster-reframe-v5.png" alt="" width="540" height="960" loading="lazy" decoding="async"></span><span class="n">02</span><span class="t">작은 천사</span></a></li>
+          <li><a href="#bonnet"><span class="thumb"><img src="posters/bonnet-poster-reframe-v5.png" alt="" width="540" height="960" loading="lazy" decoding="async"></span><span class="n">03</span><span class="t">꽃무늬 모자</span></a></li>
+          <li><a href="#white"><span class="thumb"><img src="posters/white-poster-reframe-v5.png" alt="" width="540" height="960" loading="lazy" decoding="async"></span><span class="n">04</span><span class="t">인형 친구들과</span></a></li>
+          <li><a href="#check"><span class="thumb"><img src="posters/check-poster-reframe-v5.png" alt="" width="540" height="960" loading="lazy" decoding="async"></span><span class="n">05</span><span class="t">체크 리본</span></a></li>
+        </ol>
+        <h3 class="index-sub">사진</h3>
+        <ol class="covers">
+          <li><a href="#photos-angel"><span class="thumb"><img src="photos/thumb/012.webp" alt="" width="640" height="480" loading="lazy" decoding="async"></span><span class="t">작은 천사</span></a></li>
+          <li><a href="#photos-bonnet"><span class="thumb"><img src="photos/thumb/053.webp" alt="" width="640" height="480" loading="lazy" decoding="async"></span><span class="t">꽃무늬 모자</span></a></li>
+          <li><a href="#photos-lace"><span class="thumb"><img src="photos/thumb/112.webp" alt="" width="480" height="640" loading="lazy" decoding="async"></span><span class="t">레이스 모자</span></a></li>
+          <li><a href="#photos-white"><span class="thumb"><img src="photos/thumb/190.webp" alt="" width="640" height="480" loading="lazy" decoding="async"></span><span class="t">인형 친구들과</span></a></li>
+          <li><a href="#photos-check"><span class="thumb"><img src="photos/thumb/241.webp" alt="" width="640" height="480" loading="lazy" decoding="async"></span><span class="t">체크 리본</span></a></li>
+        </ol>
+      </nav>
+    </div>
+
+    <section class="highlights" aria-labelledby="highlights-title">
+      <div class="section-head">
+        <h2 id="highlights-title">하이라이트</h2>
+      </div>
+
+      <ol class="reel">
+        <li class="entry" id="lace">
+          <span class="no" aria-hidden="true">01</span>
+          <div class="entry-head">
+            <h3>레이스 모자</h3>
+            <span class="dur"><span class="sr-only">길이 </span>0:15</span>
+          </div>
+          <div class="mount">
+            <video controls playsinline preload="metadata" data-film="lace" aria-label="레이스 모자 영상" poster="posters/lace-poster-reframe-v5.png">
+              <source src="06_rahae_lace_v5.mp4" type="video/mp4">
+              이 브라우저에서 영상이 열리지 않으면 <a href="06_rahae_lace_v5.mp4" download="06_rahae_lace_v5.mp4">영상을 저장해 주세요</a>.
+            </video>
+          </div>
+          <div class="entry-foot">
+            <a class="back" href="#index"><span aria-hidden="true">↑</span> 차례</a>
+            <a class="save" href="06_rahae_lace_v5.mp4" download="06_rahae_lace_v5.mp4" aria-label="레이스 모자 영상 저장 13.4MB">
+              <span class="w">저장</span><span class="meta">13.4MB</span>
+              <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 2.5v9m0 0-3.5-3.5M9 11.5l3.5-3.5M3 15.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+        </li>
+
+        <li class="entry" id="angel">
+          <span class="no" aria-hidden="true">02</span>
+          <div class="entry-head">
+            <h3>작은 천사</h3>
+            <span class="dur"><span class="sr-only">길이 </span>0:12</span>
+          </div>
+          <div class="mount">
+            <video controls playsinline preload="metadata" data-film="angel" aria-label="작은 천사 영상" poster="posters/angel-poster-reframe-v5.png">
+              <source src="02_rahae_angel_v5.mp4" type="video/mp4">
+              이 브라우저에서 영상이 열리지 않으면 <a href="02_rahae_angel_v5.mp4" download="02_rahae_angel_v5.mp4">영상을 저장해 주세요</a>.
+            </video>
+          </div>
+          <div class="entry-foot">
+            <a class="back" href="#index"><span aria-hidden="true">↑</span> 차례</a>
+            <a class="save" href="02_rahae_angel_v5.mp4" download="02_rahae_angel_v5.mp4" aria-label="작은 천사 영상 저장 11.1MB">
+              <span class="w">저장</span><span class="meta">11.1MB</span>
+              <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 2.5v9m0 0-3.5-3.5M9 11.5l3.5-3.5M3 15.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+        </li>
+
+        <li class="entry" id="bonnet">
+          <span class="no" aria-hidden="true">03</span>
+          <div class="entry-head">
+            <h3>꽃무늬 모자</h3>
+            <span class="dur"><span class="sr-only">길이 </span>0:09</span>
+          </div>
+          <div class="mount">
+            <video controls playsinline preload="metadata" data-film="bonnet" aria-label="꽃무늬 모자 영상" poster="posters/bonnet-poster-reframe-v5.png">
+              <source src="03_rahae_bonnet_v5.mp4" type="video/mp4">
+              이 브라우저에서 영상이 열리지 않으면 <a href="03_rahae_bonnet_v5.mp4" download="03_rahae_bonnet_v5.mp4">영상을 저장해 주세요</a>.
+            </video>
+          </div>
+          <div class="entry-foot">
+            <a class="back" href="#index"><span aria-hidden="true">↑</span> 차례</a>
+            <a class="save" href="03_rahae_bonnet_v5.mp4" download="03_rahae_bonnet_v5.mp4" aria-label="꽃무늬 모자 영상 저장 9.2MB">
+              <span class="w">저장</span><span class="meta">9.2MB</span>
+              <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 2.5v9m0 0-3.5-3.5M9 11.5l3.5-3.5M3 15.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+        </li>
+
+        <li class="entry" id="white">
+          <span class="no" aria-hidden="true">04</span>
+          <div class="entry-head">
+            <h3>인형 친구들과</h3>
+            <span class="dur"><span class="sr-only">길이 </span>0:17</span>
+          </div>
+          <div class="mount">
+            <video controls playsinline preload="metadata" data-film="white" aria-label="인형 친구들과 영상" poster="posters/white-poster-reframe-v5.png">
+              <source src="04_rahae_white_friends_v5.mp4" type="video/mp4">
+              이 브라우저에서 영상이 열리지 않으면 <a href="04_rahae_white_friends_v5.mp4" download="04_rahae_white_friends_v5.mp4">영상을 저장해 주세요</a>.
+            </video>
+          </div>
+          <div class="entry-foot">
+            <a class="back" href="#index"><span aria-hidden="true">↑</span> 차례</a>
+            <a class="save" href="04_rahae_white_friends_v5.mp4" download="04_rahae_white_friends_v5.mp4" aria-label="인형 친구들과 영상 저장 14.3MB">
+              <span class="w">저장</span><span class="meta">14.3MB</span>
+              <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 2.5v9m0 0-3.5-3.5M9 11.5l3.5-3.5M3 15.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+        </li>
+
+        <li class="entry" id="check">
+          <span class="no" aria-hidden="true">05</span>
+          <div class="entry-head">
+            <h3>체크 리본</h3>
+            <span class="dur"><span class="sr-only">길이 </span>0:15</span>
+          </div>
+          <div class="mount">
+            <video controls playsinline preload="metadata" data-film="check" aria-label="체크 리본 영상" poster="posters/check-poster-reframe-v5.png">
+              <source src="05_rahae_check_ribbon_v5.mp4" type="video/mp4">
+              이 브라우저에서 영상이 열리지 않으면 <a href="05_rahae_check_ribbon_v5.mp4" download="05_rahae_check_ribbon_v5.mp4">영상을 저장해 주세요</a>.
+            </video>
+          </div>
+          <div class="entry-foot">
+            <a class="back" href="#index"><span aria-hidden="true">↑</span> 차례</a>
+            <a class="save" href="05_rahae_check_ribbon_v5.mp4" download="05_rahae_check_ribbon_v5.mp4" aria-label="체크 리본 영상 저장 21.6MB">
+              <span class="w">저장</span><span class="meta">21.6MB</span>
+              <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 2.5v9m0 0-3.5-3.5M9 11.5l3.5-3.5M3 15.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="photos" id="photos" aria-labelledby="photos-title">
+      <div class="section-head">
+        <h2 id="photos-title">사진</h2>
+      </div>
+      <p class="photos-live sr-only" aria-live="polite"></p>
+      <nav class="chapter-bar" aria-label="사진 장면">
+        <ul>
+          <li><a href="#photos-angel">작은 천사</a></li>
+          <li><a href="#photos-bonnet">꽃무늬 모자</a></li>
+          <li><a href="#photos-lace">레이스 모자</a></li>
+          <li><a href="#photos-white">인형 친구들과</a></li>
+          <li><a href="#photos-check">체크 리본</a></li>
+        </ul>
+      </nav>
+
+      <section class="chapter" id="photos-angel" data-group="angel" aria-labelledby="photos-angel-title">
+        <div class="chapter-head"><h3 id="photos-angel-title">작은 천사</h3></div>
+        <a class="to-film" href="#angel">영상으로 보기 <span aria-hidden="true">↑</span></a>
+        <ul class="rows" id="list-angel"></ul>
+        <div class="chapter-foot"></div>
+        <a class="next-chapter" href="#photos-bonnet"><span class="k">다음 장면</span><span class="t">꽃무늬 모자</span><span aria-hidden="true">→</span></a>
+      </section>
+
+      <section class="chapter" id="photos-bonnet" data-group="bonnet" aria-labelledby="photos-bonnet-title">
+        <div class="chapter-head"><h3 id="photos-bonnet-title">꽃무늬 모자</h3></div>
+        <a class="to-film" href="#bonnet">영상으로 보기 <span aria-hidden="true">↑</span></a>
+        <ul class="rows" id="list-bonnet"></ul>
+        <div class="chapter-foot"></div>
+        <a class="next-chapter" href="#photos-lace"><span class="k">다음 장면</span><span class="t">레이스 모자</span><span aria-hidden="true">→</span></a>
+      </section>
+
+      <section class="chapter" id="photos-lace" data-group="lace" aria-labelledby="photos-lace-title">
+        <div class="chapter-head"><h3 id="photos-lace-title">레이스 모자</h3></div>
+        <a class="to-film" href="#lace">영상으로 보기 <span aria-hidden="true">↑</span></a>
+        <ul class="rows" id="list-lace"></ul>
+        <div class="chapter-foot"></div>
+        <a class="next-chapter" href="#photos-white"><span class="k">다음 장면</span><span class="t">인형 친구들과</span><span aria-hidden="true">→</span></a>
+      </section>
+
+      <section class="chapter" id="photos-white" data-group="white" aria-labelledby="photos-white-title">
+        <div class="chapter-head"><h3 id="photos-white-title">인형 친구들과</h3></div>
+        <a class="to-film" href="#white">영상으로 보기 <span aria-hidden="true">↑</span></a>
+        <ul class="rows" id="list-white"></ul>
+        <div class="chapter-foot"></div>
+        <a class="next-chapter" href="#photos-check"><span class="k">다음 장면</span><span class="t">체크 리본</span><span aria-hidden="true">→</span></a>
+      </section>
+
+      <section class="chapter" id="photos-check" data-group="check" aria-labelledby="photos-check-title">
+        <div class="chapter-head"><h3 id="photos-check-title">체크 리본</h3></div>
+        <a class="to-film" href="#check">영상으로 보기 <span aria-hidden="true">↑</span></a>
+        <ul class="rows" id="list-check"></ul>
+        <div class="chapter-foot"></div>
+      </section>
+    </section>
+
+    <section class="colophon" id="downloads" aria-label="영상별 저장">
+      <span class="ornament" aria-hidden="true"></span>
+      <p class="mark">라해의 <span class="num">50</span>일<span class="roman" lang="en">Rahae</span></p>
+      <ul class="saves">
+        <li>
+          <a href="01_rahae_50days_main_v5.mp4" download="01_rahae_50days_main_v5.mp4">
+            <span class="lbl">본편 저장</span>
+            <span class="meta">MP4 · 54.5MB</span>
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 2.5v9m0 0-3.5-3.5M9 11.5l3.5-3.5M3 15.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </li>
+        <li>
+          <a href="06_rahae_lace_v5.mp4" download="06_rahae_lace_v5.mp4">
+            <span class="lbl">레이스 모자 저장</span>
+            <span class="meta">MP4 · 13.4MB</span>
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 2.5v9m0 0-3.5-3.5M9 11.5l3.5-3.5M3 15.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </li>
+        <li>
+          <a href="02_rahae_angel_v5.mp4" download="02_rahae_angel_v5.mp4">
+            <span class="lbl">작은 천사 저장</span>
+            <span class="meta">MP4 · 11.1MB</span>
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 2.5v9m0 0-3.5-3.5M9 11.5l3.5-3.5M3 15.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </li>
+        <li>
+          <a href="03_rahae_bonnet_v5.mp4" download="03_rahae_bonnet_v5.mp4">
+            <span class="lbl">꽃무늬 모자 저장</span>
+            <span class="meta">MP4 · 9.2MB</span>
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 2.5v9m0 0-3.5-3.5M9 11.5l3.5-3.5M3 15.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </li>
+        <li>
+          <a href="04_rahae_white_friends_v5.mp4" download="04_rahae_white_friends_v5.mp4">
+            <span class="lbl">인형 친구들과 저장</span>
+            <span class="meta">MP4 · 14.3MB</span>
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 2.5v9m0 0-3.5-3.5M9 11.5l3.5-3.5M3 15.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </li>
+        <li>
+          <a href="05_rahae_check_ribbon_v5.mp4" download="05_rahae_check_ribbon_v5.mp4">
+            <span class="lbl">체크 리본 저장</span>
+            <span class="meta">MP4 · 21.6MB</span>
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 2.5v9m0 0-3.5-3.5M9 11.5l3.5-3.5M3 15.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </li>
+      </ul>
+      <a class="back" href="#album-top"><span aria-hidden="true">↑</span> 맨 위로</a>
+    </section>
+
+    <footer>
+      <p class="credit"><span class="k">음악</span><a href="https://www.scottbuckley.com.au/library/childhood/" target="_blank" rel="noopener noreferrer">Childhood</a> · <a href="https://www.scottbuckley.com.au/" target="_blank" rel="noopener noreferrer">Scott Buckley</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a></p>
+      <p>음악은 영상에 맞게 구간·길이·음량을 조정했습니다.</p>
+      <p><a href="MUSIC-CREDITS.txt" download="MUSIC-CREDITS.txt">음악 크레딧 저장</a></p>
+    </footer>
+  </main>
+
+  <nav class="dock" aria-label="영상·사진 이동">
+    <a href="#main" data-dock="video"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="2" y="2.5" width="12" height="11" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 5.5v5l4-2.5z" fill="currentColor"/></svg>영상</a>
+    <a href="#photos" data-dock="photos"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="2" y="2.5" width="12" height="11" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 12l3.5-4 2.5 3 1.5-1.5L13 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>사진</a>
+  </nav>
+
+  <dialog class="viewer" id="viewer" aria-label="사진 크게 보기">
+    <div class="viewer-top">
+      <label class="viewer-jump">
+        <span class="sr-only">장면 바로 가기</span>
+        <select class="viewer-chapter">
+          <option value="angel">작은 천사</option>
+          <option value="bonnet">꽃무늬 모자</option>
+          <option value="lace">레이스 모자</option>
+          <option value="white">인형 친구들과</option>
+          <option value="check">체크 리본</option>
+        </select>
+        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M1.5 3.5 5 7l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </label>
+      <p class="viewer-count"></p>
+      <button type="button" class="viewer-close" data-act="close" aria-label="닫기"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M5 5l10 10M15 5L5 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+    </div>
+    <div class="viewer-stage">
+      <img class="viewer-img" alt="" decoding="async" fetchpriority="high">
+      <button type="button" class="viewer-side prev" data-act="prev" tabindex="-1" aria-hidden="true"><span>‹</span></button>
+      <button type="button" class="viewer-side next" data-act="next" tabindex="-1" aria-hidden="true"><span>›</span></button>
+      <p class="viewer-status" hidden><span></span><button type="button" class="viewer-btn" data-act="retry" hidden>다시 시도</button></p>
+    </div>
+    <div class="viewer-bar">
+      <button type="button" class="viewer-btn viewer-back" data-act="close" aria-label="닫고 목록으로"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 2.5h4.5v4.5H2.5zM9 2.5h4.5v4.5H9zM2.5 9h4.5v4.5H2.5zM9 9h4.5v4.5H9z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg><span>목록</span></button>
+      <a class="viewer-btn viewer-save" href="#" download aria-label="사진 저장"><svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 2.5v9m0 0-3.5-3.5M9 11.5l3.5-3.5M3 15.5h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>저장</span></a>
+      <button type="button" class="viewer-btn" data-act="prev" aria-label="이전 사진"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>이전</span></button>
+      <button type="button" class="viewer-btn" data-act="next" aria-label="다음 사진"><span>다음</span><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <p class="viewer-live sr-only" aria-live="polite"></p>
+  </dialog>
+
+  <script>
+    // 네이티브 controls 유지, 한 번에 한 편만 재생하고 재생 중인 장면을 차례에 표시합니다.
+    (function () {
+      var videos = Array.prototype.slice.call(document.querySelectorAll('video'));
+      function mark() {
+        videos.forEach(function (v) {
+          var id = v.getAttribute('data-film');
+          var playing = !v.paused && !v.ended;
+          var box = document.getElementById(id);
+          var link = document.querySelector('.sheet a[href="#' + id + '"]');
+          if (box) box.classList.toggle('is-playing', playing);
+          if (link) link.classList.toggle('is-playing', playing);
+        });
+      }
+      videos.forEach(function (current) {
+        current.addEventListener('play', function () {
+          videos.forEach(function (other) { if (other !== current && !other.paused) other.pause(); });
+          mark();
+        });
+        current.addEventListener('pause', mark);
+        current.addEventListener('ended', mark);
+      });
+    })();
+  </script>
+  <script src="album.js?v=hub1" defer></script>
+</body>
+</html>
