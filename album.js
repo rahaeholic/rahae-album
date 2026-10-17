@@ -269,18 +269,7 @@
       btn.addEventListener('click', function () { more(id); });
       g.foot.appendChild(btn);
     }
-    btn.textContent = '';
-    if (rest > STEP) {
-      var w = document.createElement('span');
-      w.textContent = STEP + '장 더 보기';
-      var c = document.createElement('span');
-      c.className = 'more-c';
-      c.textContent = '남은 ' + rest + '장';
-      btn.appendChild(w);
-      btn.appendChild(c);
-    } else {
-      btn.textContent = '나머지 ' + rest + '장 보기';
-    }
+    btn.textContent = '더 보기';
   }
 
   /* ---------- 장면 바 ---------- */
