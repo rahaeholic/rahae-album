@@ -95,7 +95,7 @@
       say('사진 목록이 늦어지고 있어요. 다시 시도할 수 있어요.');
     }, STALL);
     ctrl = typeof AbortController === 'function' ? new AbortController() : null;
-    fetch('album.json', ctrl ? { signal: ctrl.signal } : undefined).then(function (r) {
+    fetch('album.json?v=orientation1', ctrl ? { signal: ctrl.signal } : undefined).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
     }).then(function (data) {
